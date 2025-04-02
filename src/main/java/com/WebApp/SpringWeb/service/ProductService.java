@@ -1,53 +1,39 @@
 package com.WebApp.SpringWeb.service;
 
 import com.WebApp.SpringWeb.model.Product;
+import com.WebApp.SpringWeb.repo.ProductRepo;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
 @Service
 public class ProductService {
 
-    private final List<Product> products = new ArrayList<>(Arrays.asList(new Product(101, "iphone", 23000),
-            new Product(102, "iphone", 23000),
-            new Product(103, "iphone", 23000)));
+    @Autowired
+    ProductRepo repo;
 
+    public List<Product> getProducts() {
+        return repo.findAll();
+    }
 
-    public Product getProductById(int prodId) {
-        return products.stream()
-                .filter(p -> p.getProdId() == prodId)
-                .findFirst().orElse(new Product(100, "No item", 0));
+    public Product getProductById(Long prodId) {
+        return repo.getReferenceById(prodId);
     }
 
     public void addProd(Product prod) {
-        products.add(prod);
+        repo.save(prod);
     }
 
     public void updateProd(Product prod) {
-        for (int i = 0; i < products.size(); i++) {
-            if (products.get(i).getProdId() == prod.getProdId()) {
-                products.set(i, prod);
-                break;
-            }
-        }
+        repo.save(prod);
     }
 
-    public Product deleteProd(int prodId) {
-        Product productToDelete = null;
-        for (Product product : products) {
-            if (product.getProdId() == prodId) {
-                productToDelete = product;
-                break;
-            }
-        }
-        if (productToDelete != null) {
-            products.remove(productToDelete);
-        }
-        return productToDelete;
-
+    public Product deleteProd(Long prodId) {
+        Product p = repo.getReferenceById(prodId);
+        repo.deleteById(prodId);
+        return p;
     }
 }
